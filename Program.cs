@@ -16,6 +16,8 @@ namespace Printer_Service
     {
         static void Main(string[] args)
         {
+            autoUpdate();
+
             string rabbitQueue = "harithmaq";
             string rabbitUsername = Environment.GetEnvironmentVariable("RABBIT_MQ_USERNAME");
             string rabbitPassword = Environment.GetEnvironmentVariable("RABBIT_MQ_PASSWORD");
@@ -127,14 +129,12 @@ namespace Printer_Service
 
                 try
                 {
-                    if (File.Exists(@".\MyAppSetup.msi")) { File.Delete(@".\MyAppSetup.msi"); }
-                    client.DownloadFile("link to web host/MyAppSetup.zip", @"MyAppSetup.zip");
-                    string zipPath = @".\MyAppSetup.zip";
-                    string extractPath = @".\";
-                    ZipFile.ExtractToDirectory(zipPath, extractPath);
+                    if (File.Exists(@".\HarithmaPrinterServiceSetup.msi")) { File.Delete(@".\HarithmaPrinterServiceSetup.msi"); }
+                    client.DownloadFile("https://github.com/Madlhawa/Harithma-Printer-Service/raw/refs/heads/master/Updates/HarithmaPrinterServiceSetup.msi", @"HarithmaPrinterServiceSetup.msi");
+
                     Process process = new Process();
                     process.StartInfo.FileName = "msiexec.exe";
-                    process.StartInfo.Arguments = string.Format("/i MyAppSetup.msi");
+                    process.StartInfo.Arguments = string.Format("/i HarithmaPrinterServiceSetup.msi");
                     process.Start();
                 }
                 catch
