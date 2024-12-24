@@ -120,7 +120,7 @@ namespace Printer_Service
             WebClient webClient = new WebClient();
             var client = new WebClient();
 
-            if (!webClient.DownloadString("").Contains("1.0.0"))
+            if (!webClient.DownloadString("https://raw.githubusercontent.com/Madlhawa/Harithma-Printer-Service/refs/heads/master/Updates/Version.txt").Contains("1.0.0"))
             {
                 Console.WriteLine("New Version Found. Please type 'y' to update.");
                 Console.ReadLine();
