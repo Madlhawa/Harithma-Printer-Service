@@ -118,65 +118,39 @@ namespace Printer_Service
 
         static void autoUpdate()
         {
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Updates", "Version.txt");
-            string currentVersion = ReadFileContent(filePath);
+            
+            string currentVersion = getCurrentVersion();
             Console.WriteLine($"Current Version is {currentVersion}.");
 
             WebClient webClient = new WebClient();
+            var client = new WebClient();
+
             Console.WriteLine("Checking for newer versions.");
             string latestVersion = webClient.DownloadString("https://raw.githubusercontent.com/Madlhawa/Harithma-Printer-Service/refs/heads/master/Updates/Version.txt");
 
             if (!currentVersion.Contains(latestVersion))
             {
                 Console.WriteLine($"Newer version {latestVersion} found.");
-                Console.WriteLine("Please type 'y' to update.");
-                string response = Console.ReadLine();
-                if (response.ToLower() == "y")
-                {
-                    try
-                    {
-                        string setupFilePath = @".\HarithmaPrinterServiceSetup.msi";
 
-                        // Delete existing setup file if it exists
-                        if (File.Exists(setupFilePath))
-                        {
-                            File.Delete(setupFilePath);
-                        }
+                string tempPath = Path.Combine(Path.GetTempPath(), "HarithmaPrinterServiceSetup.msi");
+                client.DownloadFile("https://github.com/Madlhawa/Harithma-Printer-Service/raw/refs/heads/master/Updates/HarithmaPrinterServiceSetup.msi", tempPath);
 
-                        // Download the latest setup file
-                        webClient.DownloadFile(
-                            "https://github.com/Madlhawa/Harithma-Printer-Service/raw/refs/heads/master/Updates/HarithmaPrinterServiceSetup.msi",
-                            setupFilePath);
+                Process process = new Process();
+                process.StartInfo.FileName = "msiexec.exe";
+                process.StartInfo.Arguments = $"/i \"{tempPath}\"";
+                process.Start();
 
-                        // Start the installer with upgrade arguments
-                        Process process = new Process();
-                        process.StartInfo.FileName = "msiexec.exe";
-                        process.StartInfo.Arguments = $"/i {setupFilePath} /quiet /norestart";
-                        process.Start();
-                        Console.WriteLine("Installation started. Please wait for it to complete.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Update failed: {ex.Message}");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Update canceled.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("You are already using the latest version.");
+                Console.WriteLine("Exiting the application...");
+                Environment.Exit(0); // 0 indicates successful termination
             }
         }
 
-
-        static string ReadFileContent(string filePath)
+        static string getCurrentVersion()
         {
             try
             {
                 // Read all text from the file and return it
+                string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Updates", "Version.txt");
                 return File.ReadAllText(filePath);
             }
             catch (Exception ex)
