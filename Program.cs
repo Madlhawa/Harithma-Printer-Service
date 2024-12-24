@@ -4,7 +4,6 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Newtonsoft.Json;
 using System.IO;
-using System.IO.Compression;
 using System.Net;
 using System.Diagnostics;
 
@@ -119,27 +118,72 @@ namespace Printer_Service
 
         static void autoUpdate()
         {
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Updates", "Version.txt");
+            string currentVersion = ReadFileContent(filePath);
+            Console.WriteLine($"Current Version is {currentVersion}.");
+
             WebClient webClient = new WebClient();
-            var client = new WebClient();
+            Console.WriteLine("Checking for newer versions.");
+            string latestVersion = webClient.DownloadString("https://raw.githubusercontent.com/Madlhawa/Harithma-Printer-Service/refs/heads/master/Updates/Version.txt");
 
-            if (!webClient.DownloadString("https://raw.githubusercontent.com/Madlhawa/Harithma-Printer-Service/refs/heads/master/Updates/Version.txt").Contains("1.0.0"))
+            if (!currentVersion.Contains(latestVersion))
             {
-                Console.WriteLine("New Version Found. Please type 'y' to update.");
-                Console.ReadLine();
-
-                try
+                Console.WriteLine($"Newer version {latestVersion} found.");
+                Console.WriteLine("Please type 'y' to update.");
+                string response = Console.ReadLine();
+                if (response.ToLower() == "y")
                 {
-                    if (File.Exists(@".\HarithmaPrinterServiceSetup.msi")) { File.Delete(@".\HarithmaPrinterServiceSetup.msi"); }
-                    client.DownloadFile("https://github.com/Madlhawa/Harithma-Printer-Service/raw/refs/heads/master/Updates/HarithmaPrinterServiceSetup.msi", @"HarithmaPrinterServiceSetup.msi");
+                    try
+                    {
+                        string setupFilePath = @".\HarithmaPrinterServiceSetup.msi";
 
-                    Process process = new Process();
-                    process.StartInfo.FileName = "msiexec.exe";
-                    process.StartInfo.Arguments = string.Format("/i HarithmaPrinterServiceSetup.msi");
-                    process.Start();
+                        // Delete existing setup file if it exists
+                        if (File.Exists(setupFilePath))
+                        {
+                            File.Delete(setupFilePath);
+                        }
+
+                        // Download the latest setup file
+                        webClient.DownloadFile(
+                            "https://github.com/Madlhawa/Harithma-Printer-Service/raw/refs/heads/master/Updates/HarithmaPrinterServiceSetup.msi",
+                            setupFilePath);
+
+                        // Start the installer with upgrade arguments
+                        Process process = new Process();
+                        process.StartInfo.FileName = "msiexec.exe";
+                        process.StartInfo.Arguments = $"/i {setupFilePath} /quiet /norestart";
+                        process.Start();
+                        Console.WriteLine("Installation started. Please wait for it to complete.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Update failed: {ex.Message}");
+                    }
                 }
-                catch
+                else
                 {
+                    Console.WriteLine("Update canceled.");
                 }
+            }
+            else
+            {
+                Console.WriteLine("You are already using the latest version.");
+            }
+        }
+
+
+        static string ReadFileContent(string filePath)
+        {
+            try
+            {
+                // Read all text from the file and return it
+                return File.ReadAllText(filePath);
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors and return an error message
+                Console.WriteLine($"Error reading file: {ex.Message}");
+                return null; // or you can return an empty string if preferred
             }
         }
     }
