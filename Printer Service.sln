@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Printer Service", "Printer Service.csproj", "{45F53E84-F9D7-4563-B859-58FAF7D76CD3}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Harithma Printer Service Setup", "..\Harithma Printer Service Setup\Harithma Printer Service Setup.vdproj", "{5EA2A2C5-4AAD-4775-A3FE-0BF910AD6315}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{45F53E84-F9D7-4563-B859-58FAF7D76CD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45F53E84-F9D7-4563-B859-58FAF7D76CD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45F53E84-F9D7-4563-B859-58FAF7D76CD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45F53E84-F9D7-4563-B859-58FAF7D76CD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EA2A2C5-4AAD-4775-A3FE-0BF910AD6315}.Debug|Any CPU.ActiveCfg = Debug
+		{5EA2A2C5-4AAD-4775-A3FE-0BF910AD6315}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FC3302F9-C145-430C-8790-A5B745DD4F6D}
+	EndGlobalSection
+EndGlobal
