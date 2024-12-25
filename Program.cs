@@ -15,6 +15,9 @@ namespace Printer_Service
     {
         static void Main(string[] args)
         {
+            string currentVersion = getCurrentVersion();
+            Console.WriteLine($"Harithma Printer Service : Version {currentVersion}");
+
             autoUpdate();
 
             string rabbitQueue = "harithmaq";
@@ -50,7 +53,6 @@ namespace Printer_Service
                 };
                 channel.BasicConsume(queue: "harithmaq", autoAck: true, consumer: consumer);
 
-                Console.WriteLine("Initialized Harithma Printer Service : Version 1.0.0.");
                 Console.WriteLine($"Host : {rabbitHost}");
                 Console.WriteLine($"Queue : {rabbitQueue}.");
                 Console.WriteLine("\nWaiting for print request... To exit press CTRL+C");
@@ -118,30 +120,56 @@ namespace Printer_Service
 
         static void autoUpdate()
         {
-            
+            Console.WriteLine("Checking for updates...");
+
             string currentVersion = getCurrentVersion();
-            Console.WriteLine($"Current Version is {currentVersion}.");
-
-            WebClient webClient = new WebClient();
-            var client = new WebClient();
-
-            Console.WriteLine("Checking for newer versions.");
-            string latestVersion = webClient.DownloadString("https://raw.githubusercontent.com/Madlhawa/Harithma-Printer-Service/refs/heads/master/Updates/Version.txt");
-
-            if (!currentVersion.Contains(latestVersion))
+            if (string.IsNullOrEmpty(currentVersion))
             {
-                Console.WriteLine($"Newer version {latestVersion} found.");
+                Console.WriteLine("Failed to retrieve the current version. Update process aborted.");
+                return;
+            }
 
-                string tempPath = Path.Combine(Path.GetTempPath(), "HarithmaPrinterServiceSetup.msi");
-                client.DownloadFile("https://github.com/Madlhawa/Harithma-Printer-Service/raw/refs/heads/master/Updates/HarithmaPrinterServiceSetup.msi", tempPath);
+            try
+            {
+                using (WebClient webClient = new WebClient())
+                {
+                    string latestVersion = webClient.DownloadString("https://raw.githubusercontent.com/Madlhawa/Harithma-Printer-Service/refs/heads/master/Updates/Version.txt");
 
-                Process process = new Process();
-                process.StartInfo.FileName = "msiexec.exe";
-                process.StartInfo.Arguments = $"/i \"{tempPath}\"";
-                process.Start();
+                    if (string.IsNullOrEmpty(latestVersion))
+                    {
+                        Console.WriteLine("Failed to retrieve the latest version. Update process aborted.");
+                        return;
+                    }
 
-                Console.WriteLine("Exiting the application...");
-                Environment.Exit(0); // 0 indicates successful termination
+                    if (!currentVersion.Equals(latestVersion, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine($"Newer version {latestVersion} found.");
+
+                        string tempPath = Path.Combine(Path.GetTempPath(), "HarithmaPrinterServiceSetup.msi");
+                        webClient.DownloadFile("https://github.com/Madlhawa/Harithma-Printer-Service/raw/refs/heads/master/Updates/HarithmaPrinterServiceSetup.msi", tempPath);
+
+                        Console.WriteLine("Downloaded the update installer. Starting the installation...");
+
+                        Process process = new Process
+                        {
+                            StartInfo = new ProcessStartInfo
+                            {
+                                FileName = "msiexec.exe",
+                                Arguments = $"/i \"{tempPath}\"",
+                                UseShellExecute = true
+                            }
+                        };
+                        process.Start();
+
+                        Console.WriteLine("Installation started. Exiting the application...");
+                        Environment.Exit(0); // 0 indicates successful termination
+                    }
+
+                }
+            }
+            catch
+            {
+
             }
         }
 
